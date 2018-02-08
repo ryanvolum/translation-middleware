@@ -7,36 +7,48 @@ interface translationPreferences {
     fromLanguageCode: string
 }
 
-export class translate implements Middleware {
+export class Translator implements Middleware {
     private translationKey: string;
     private botLanguage: string;
-    private getPreferences: (context: BotContext) => string;
+    private getActiveLanguage: (context: BotContext) => string;
+    private setActiveLanguage: (context: BotContext) => Promise<void>;
 
-    constructor(translationKey: string, botLanguage: string, getPreferences: (c: BotContext) => string) {
+    constructor(translationKey: string, botLanguage: string, getActiveLanguage: (c: BotContext) => string, setActiveLanguage: (context: BotContext) => Promise<void>) {
         this.translationKey = translationKey;
         this.botLanguage = botLanguage;
-        //assuming synchronous for now...
-        this.getPreferences = getPreferences;
+        this.getActiveLanguage = getActiveLanguage;
+        this.setActiveLanguage = setActiveLanguage;
     }
 
     public receiveActivity(context: BotContext, next: () => Promise<void>): Promise<void> {
-        let language = this.getPreferences(context);
+        let language = this.getActiveLanguage(context);
         if (language) {
             return this.translate(context.request.text, language, this.botLanguage)
                 .then(response => {
                     context.request.text = response;
-                    return next();
+                    return next()
+                        .then(_ => {
+                            return this.setActiveLanguage(context);
+                        })
                 }).catch(err => {
                     console.warn(err);
                     return next();
                 });
         } else {
-            return next();
+            return next()
+                .then(_ => {
+                    return this.setActiveLanguage(context);
+                })
         }
     }
+
+
+
+    //message --> if not bot language translate --> get intent, if changeLanguage, update language --> bot logic --> translate to active lang --> send
+
     //TODO: use batch translation api...
     public postActivity(context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>): Promise<ConversationResourceResponse[]> {
-        let language = this.getPreferences(context);
+        let language = this.getActiveLanguage(context);
         if (language) {
             return Promise.all(
                 activities
@@ -71,6 +83,13 @@ export class translate implements Middleware {
         };
         return translationClient.translate({ parameters });
     }
+}
+
+const nextThenSetActiveLanguage = (context: BotContext, next: () => Promise<void>): Promise<void> => {
+    return next()
+        .then(_ => {
+            return this.setActiveLanguage(context);
+        })
 }
 
 

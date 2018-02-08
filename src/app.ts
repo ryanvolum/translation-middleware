@@ -1,8 +1,10 @@
-import { Bot, MemoryStorage, BotStateManager, ConsoleLogger } from 'botbuilder';
+import { Bot, MemoryStorage, BotStateManager, ConsoleLogger, Intent } from 'botbuilder';
 import { BotFrameworkAdapter } from 'botbuilder-services';
-import { translate } from './translate-middleware';
+import { Translator } from './translate-middleware';
 import * as restify from "restify";
 import { LuisRecognizer } from 'botbuilder-ai';
+const { MessageStyler, CardStyler } = require('botbuilder');
+
 
 // Create server
 let server = restify.createServer();
@@ -17,16 +19,7 @@ const adapter = new BotFrameworkAdapter({
 });
 server.post('/api/messages', <any>adapter.listen());
 
-interface translationPreferences {
-    toLanguageCode: string,
-    fromLanguageCode: string
-}
-
-const getLanguagePreferences = (context: BotContext): void | translationPreferences => {
-    if (context.request.type === 'message' && context.state.conversation.translationPreferences) {
-        return context.state.conversation.translationPreferences;
-    }
-}
+const luis = new LuisRecognizer('029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3');
 
 const getActiveLanguage = (context: BotContext): string => {
     if (context.request.type === 'message' && context.state.user.translateTo) {
@@ -48,43 +41,42 @@ const getLanguageCode = (language) => {
     return languageMap[language];
 }
 
-const getTopIntent = (context: BotContext) => {
-    return (context.topIntent && context.topIntent.name) ? context.topIntent.name : null;
-}
-
-const getTopEntity = (context: BotContext) => {
-    return (context.topIntent && context.topIntent.entities && context.topIntent.entities[0]) ? context.topIntent.entities[0] : null;
-}
-
-const setActiveLanguage = (context: BotContext, language): void => {
+const setLanguage = (context: BotContext, language): void => {
     context.state.user.translateTo = getLanguageCode(language);
+}
+
+const setActiveLanguage = (context: BotContext) => {
+    if (context.request.type === "message") {
+        return LuisRecognizer.recognize(context.request.text, '029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3')
+            .then(intent => {
+                if (intent && intent.name === 'changeLanguage') {
+                    let entity = (intent.entities && intent.entities[0]) ? intent.entities[0] : null;
+
+                    if (entity && entity.type === 'language::toLanguage') {
+
+                        if (isSupportedLanguage(entity.value)) {
+                            setLanguage(context, entity.value);
+                            context.reply(`Changing your language to ${entity.value}`);
+
+                        } else {
+                            context.reply(`${entity.value} is not a supported language.`);
+                        }
+
+                    } else {
+                        context.reply(`You have to tell me what language to translate to!`);
+                    }
+                }
+            })
+    }
 }
 
 const bot = new Bot(adapter)
     .use(new ConsoleLogger())
     .use(new MemoryStorage())
     .use(new BotStateManager())
-    .use(new translate("5fa547f29f94485e9eeb78a7f393adf7", "en", getActiveLanguage))
-    .use(new LuisRecognizer('029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3'))
+    .use(new Translator("5fa547f29f94485e9eeb78a7f393adf7", "en", getActiveLanguage, setActiveLanguage))
     .onReceive((context) => {
         if (context.request.type === 'message') {
-
-            if (getTopIntent(context) === 'changeLanguage') {
-                var entity = getTopEntity(context);
-
-                if (entity.type === 'language::toLanguage') {
-
-                    if (isSupportedLanguage(entity.value)) {
-                        setActiveLanguage(context, entity.value);
-                        context.reply(`Changing your language to ${entity.value}`);
-                    } else {
-                        context.reply(`${entity.value} is not a supported language.`);
-                    }
-                } else {
-                    context.reply(`You have to tell me what language to translate to!`);
-                }
-            }
             context.reply(`You just said:`).reply(`"${context.request.text}"`);
         }
-
     });
