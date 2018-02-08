@@ -10,17 +10,17 @@ interface translationPreferences {
 export class translate implements Middleware {
     private translationKey: string;
     private botLanguage: string;
-    private getPreferences: (context: BotContext) => string;
+    private getActiveLanguage: (context: BotContext) => string;
 
-    constructor(translationKey: string, botLanguage: string, getPreferences: (c: BotContext) => string) {
+    constructor(translationKey: string, botLanguage: string, getActiveLanguage: (c: BotContext) => string) {
         this.translationKey = translationKey;
         this.botLanguage = botLanguage;
         //assuming synchronous for now...
-        this.getPreferences = getPreferences;
+        this.getActiveLanguage = getActiveLanguage;
     }
 
     public receiveActivity(context: BotContext, next: () => Promise<void>): Promise<void> {
-        let language = this.getPreferences(context);
+        let language = this.getActiveLanguage(context);
         if (language) {
             return this.translate(context.request.text, language, this.botLanguage)
                 .then(response => {
@@ -36,7 +36,7 @@ export class translate implements Middleware {
     }
     //TODO: use batch translation api...
     public postActivity(context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>): Promise<ConversationResourceResponse[]> {
-        let language = this.getPreferences(context);
+        let language = this.getActiveLanguage(context);
         if (language) {
             return Promise.all(
                 activities
