@@ -45,7 +45,7 @@ const setLanguage = (context: BotContext, language): void => {
     context.state.user.translateTo = getLanguageCode(language);
 }
 
-const setActiveLanguage = (context: BotContext) => {
+const setActiveLanguage = (context: BotContext): Promise<any> => {
     if (context.request.type === "message") {
         return LuisRecognizer.recognize(context.request.text, '029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3')
             .then(intent => {
@@ -57,6 +57,7 @@ const setActiveLanguage = (context: BotContext) => {
                         if (isSupportedLanguage(entity.value)) {
                             setLanguage(context, entity.value);
                             context.reply(`Changing your language to ${entity.value}`);
+                            return Promise.resolve(true);
 
                         } else {
                             context.reply(`${entity.value} is not a supported language.`);
@@ -65,6 +66,8 @@ const setActiveLanguage = (context: BotContext) => {
                     } else {
                         context.reply(`You have to tell me what language to translate to!`);
                     }
+                } else {
+                    return Promise.resolve(false);
                 }
             })
     }
