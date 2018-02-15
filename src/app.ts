@@ -79,7 +79,7 @@ const bot = new Bot(adapter)
         if (context.request.type === 'message') {
             context.reply(`You just said:`)
                 .showTyping()
-                .delay(2000)
+                .delay(1000)
                 .reply(`"${context.request.text}"`);
         }
     });
