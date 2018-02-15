@@ -3,7 +3,6 @@ import { BotFrameworkAdapter } from 'botbuilder-services';
 import { Translator } from './translate-middleware';
 import * as restify from "restify";
 import { LuisRecognizer } from 'botbuilder-ai';
-const { MessageStyler, CardStyler } = require('botbuilder');
 
 
 // Create server
