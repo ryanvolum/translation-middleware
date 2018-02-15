@@ -77,6 +77,9 @@ const bot = new Bot(adapter)
     .use(new Translator("5fa547f29f94485e9eeb78a7f393adf7", "en", getUserLanguage, setActiveLanguage))
     .onReceive((context) => {
         if (context.request.type === 'message') {
-            context.reply(`You just said:`).reply(`"${context.request.text}"`);
+            context.reply(`You just said:`)
+                .showTyping()
+                .delay(1000)
+                .reply(`"${context.request.text}"`);
         }
     });
