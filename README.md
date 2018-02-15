@@ -4,7 +4,7 @@ This project demonstrates a piece of middleware that makes a bot multilingual. I
 ## Usage
 As with any SDKv4 middleware, you include the translator middleware with a bot.use declaration:
 ```ts
-    .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setActiveLanguage))
+    .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setUserLanguage))
 ```
 This middleware takes four arguments:
 
@@ -24,7 +24,7 @@ A function that takes the bot context and returns the user's language. In the ex
 #### setUserLanguage
 A function that updates the user's language and returns a boolean promise. The promise resolves to true if the language was updated, ergo short circuiting the conversation (the message will not flow into the rest of the middleware or your bot logic).
 
-In the example `app.ts`, this uses a pretrained LUIS model with a trained intent of "changeLanguage" and an entity of "language::toLanguage". It calls the model, and if the changeLanguage intent is triggered, the conversation the middleware will take over the conversation by returning ```Promise.resolve(true)```. If LUIS also found an entity of type "language::toLanguage", then it knows what language to update to and sets that language in the same place that ```getUserLanguage``` will pull it from. Note, the sample also has some helpers (```isSupportedLanguage```, ```getLanguageCode``` and ```setLanguage```) that ```setActiveLanguage``` uses to set language. 
+In the example `app.ts`, this uses a pretrained LUIS model with a trained intent of "changeLanguage" and an entity of "language::toLanguage". It calls the model, and if the changeLanguage intent is triggered, the conversation the middleware will take over the conversation by returning ```Promise.resolve(true)```. If LUIS also found an entity of type "language::toLanguage", then it knows what language to update to and sets that language in the same place that ```getUserLanguage``` will pull it from. Note, the sample also has some helpers (```isSupportedLanguage```, ```getLanguageCode``` and ```setLanguage```) that ```setUserLanguage``` uses to set language. 
 
 If the language is not changed and the intent "changeLanguage" is not triggered, then we want the message to fall through to the rest of our middleware and bot logic, so we return Promise.resolve(false).
  
@@ -34,6 +34,13 @@ If the language is not changed and the intent "changeLanguage" is not triggered,
 ```
 npm install
 ```
+
+### Add keys to your .env file
+Open the .env file in your root directory. Add your Microsoft Translator API key, your Luis App Id and your Luis App Password.
+
+If you're using the sample app.ts, you need to host a LUIS app with the "changeLanguage" intent and the "language::toLanguage" entity. Remember that you can define your setUserLanguage to change languages based on whatever trigger you like (An NLP model triggering a specific intent, a button being pressed, a regular expression firing, etc.). 
+
+The implementation I here is just one way of doing things :)
 
 ### Compile Typescript
 
