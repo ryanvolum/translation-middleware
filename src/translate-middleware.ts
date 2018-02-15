@@ -66,6 +66,7 @@ export class Translator implements Middleware {
                 if (!changedLanguage) {
                     return next();
                 }
+                //otherwise intercepts 
             })
     }
     //switches to and from
