@@ -19,8 +19,6 @@ const adapter = new BotFrameworkAdapter({
 });
 server.post('/api/messages', <any>adapter.listen());
 
-const luis = new LuisRecognizer('029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3');
-
 const getUserLanguage = (context: BotContext): string => {
     if (context.request.type === 'message' && context.state.user.translateTo) {
         return context.state.user.translateTo;
