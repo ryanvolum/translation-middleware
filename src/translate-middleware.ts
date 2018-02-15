@@ -59,7 +59,7 @@ export class Translator implements Middleware {
                             })
                     }
                 })
-            ).then(_ => { return next(); })
+            ).then(_ => next())
                 .catch(err => {
                     console.warn(err);
                     return next();
