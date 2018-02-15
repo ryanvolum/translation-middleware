@@ -20,7 +20,7 @@ server.post('/api/messages', <any>adapter.listen());
 
 const luis = new LuisRecognizer('029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3');
 
-const getActiveLanguage = (context: BotContext): string => {
+const getUserLanguage = (context: BotContext): string => {
     if (context.request.type === 'message' && context.state.user.translateTo) {
         return context.state.user.translateTo;
     } else {
@@ -74,7 +74,7 @@ const bot = new Bot(adapter)
     .use(new ConsoleLogger())
     .use(new MemoryStorage())
     .use(new BotStateManager())
-    .use(new Translator("5fa547f29f94485e9eeb78a7f393adf7", "en", getActiveLanguage, setActiveLanguage))
+    .use(new Translator("5fa547f29f94485e9eeb78a7f393adf7", "en", getUserLanguage, setActiveLanguage))
     .onReceive((context) => {
         if (context.request.type === 'message') {
             context.reply(`You just said:`).reply(`"${context.request.text}"`);

@@ -10,19 +10,20 @@ interface translationPreferences {
 export class Translator implements Middleware {
     private translationKey: string;
     private botLanguage: string;
-    private getActiveLanguage: (context: BotContext) => string;
-    private setActiveLanguage: (context: BotContext) => Promise<boolean>;
+    private getUserLanguage: (context: BotContext) => string;
+    private setUserLanguage: (context: BotContext) => Promise<boolean>;
 
-    constructor(translationKey: string, botLanguage: string, getActiveLanguage: (c: BotContext) => string, setActiveLanguage: (context: BotContext) => Promise<boolean>) {
+    constructor(translationKey: string, botLanguage: string, getUserLanguage: (c: BotContext) => string, setUserLanguage: (context: BotContext) => Promise<boolean>) {
         this.translationKey = translationKey;
         this.botLanguage = botLanguage;
-        this.getActiveLanguage = getActiveLanguage;
-        this.setActiveLanguage = setActiveLanguage;
+        this.getUserLanguage = getUserLanguage;
+        this.setUserLanguage = setUserLanguage;
     }
 
     public async receiveActivity(context: BotContext, next: () => Promise<void>): Promise<void> {
         if (context.request.type === "message") {
-            let language = this.getActiveLanguage(context) || this.botLanguage;
+            //Use the injected getUserLanguage function to find the user's current language. If none, assume they're speaking the bot's language
+            let language = this.getUserLanguage(context) || this.botLanguage;
 
             await this.translate(context.request.text, language, this.botLanguage)
                 .then(response => {
@@ -32,13 +33,21 @@ export class Translator implements Middleware {
                     return next();
                 });
 
-            return this.updateLanguage(context, next);
+            return this.setUserLanguage(context)
+                .then(changedLanguage => {
+                    //If user's language was not changed, continue to flow through middleware
+                    if (!changedLanguage) {
+                        return next();
+                    }
+                    //Else (no code necessary) the message is intercepted
+                })
         }
     }
 
     //TODO: use batch translation api...
+    //Translates all outgoing messages, which are batched in an array
     public postActivity(context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>): Promise<ConversationResourceResponse[]> {
-        let language = this.getActiveLanguage(context);
+        let language = this.getUserLanguage(context);
         if (language) {
             return Promise.all(
                 activities
@@ -60,16 +69,7 @@ export class Translator implements Middleware {
         }
     }
 
-    public updateLanguage = (context: BotContext, next: () => Promise<any>): Promise<void> => {
-        return this.setActiveLanguage(context)
-            .then(changedLanguage => {
-                if (!changedLanguage) {
-                    return next();
-                }
-                //otherwise intercepts 
-            })
-    }
-    //switches to and from
+    //Translates using the Microsoft Translator Text API
     public translate = (text: string, from: string, to: string): Promise<string> => {
         if (from !== to) {
             const translationClient = new cs.textTranslator({
