@@ -1,9 +1,10 @@
 import { Bot, MemoryStorage, BotStateManager, ConsoleLogger, Intent } from 'botbuilder';
 import { BotFrameworkAdapter } from 'botbuilder-services';
 import { Translator } from './translate-middleware';
-import * as restify from "restify";
 import { LuisRecognizer } from 'botbuilder-ai';
-
+import * as restify from "restify";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 // Create server
 let server = restify.createServer();
@@ -45,7 +46,7 @@ const setLanguage = (context: BotContext, language): void => {
 }
 
 const setActiveLanguage = (context: BotContext): Promise<boolean> => {
-    return LuisRecognizer.recognize(context.request.text, '029ad101-c978-4bbe-b2ae-e95c193ad580', '9c33ab53fea54a71831fa4098fa845a3')
+    return LuisRecognizer.recognize(context.request.text, process.env.MICROSOFT_LUIS_APP_ID, process.env.MICROSOFT_LUIS_APP_PASSWORD)
         .then(intent => {
             if (intent && intent.name === 'changeLanguage') {
                 let entity = (intent.entities && intent.entities[0]) ? intent.entities[0] : null;
@@ -74,7 +75,7 @@ const bot = new Bot(adapter)
     .use(new ConsoleLogger())
     .use(new MemoryStorage())
     .use(new BotStateManager())
-    .use(new Translator("5fa547f29f94485e9eeb78a7f393adf7", "en", getUserLanguage, setActiveLanguage))
+    .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setActiveLanguage))
     .onReceive((context) => {
         if (context.request.type === 'message') {
             context.reply(`You just said:`).reply(`"${context.request.text}"`);

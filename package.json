@@ -15,6 +15,7 @@
     "botbuilder": "^4.0.0-m1.0",
     "botbuilder-services": "^4.0.0-m1.0",
     "cognitive-services": "^0.6.2",
+    "dotenv": "^5.0.0",
     "restify": "6.3.4"
   }
 }
