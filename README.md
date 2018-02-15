@@ -30,6 +30,11 @@ If the language is not changed and the intent "changeLanguage" is not triggered,
  
 # Setup
 
+### Install packages
+```
+npm install
+```
+
 ### Compile Typescript
 
 Compile:
