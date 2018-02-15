@@ -1,6 +1,23 @@
 # translation-middleware
 This project demonstrates a piece of middleware that makes a bot multilingual. It includes the middleware in ```translate-middleware.ts``` and a sample bot in ```app.ts```. This project uses TypeScript - see Setup section for compilation instructions.
 
+Sweet pseudocode ASCII art:
+
+(message) -----> translate from user language to bot language ----->
+
+(translated message) -----> check if message is trying to update user's languge. 
+
+If so, update language and intercept message ----X
+
+Else, pass translated message along to the rest of your middleware and bot logic
+(translated message) -----> 
+
+bot logic -----> bot's responses ----->
+
+([bot's responses in bot language]) -----> Then, translate bot's responses from bot language to user language -----> 
+
+([bot's messages in user's language]) -----> message to user
+
 ## Usage
 As with any SDKv4 middleware, you include the translator middleware with a bot.use declaration:
 ```ts
