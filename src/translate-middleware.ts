@@ -49,18 +49,18 @@ export class Translator implements Middleware {
     public postActivity(context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>): Promise<ConversationResourceResponse[]> {
         let language = this.getUserLanguage(context);
         if (language) {
+            let promises = [];
             return Promise.all(
-                activities
-                    .map(activity => {
+                activities.map((activity, i) => {
+                    if (activity.text) {
                         return this.translate(activity.text, this.botLanguage, language)
-                    })
-            )
-                .then(res => {
-                    res.forEach((translation, i) => {
-                        activities[i].text = translation;
-                    })
-                    return next();
-                }).catch(err => {
+                            .then(translation => {
+                                activities[i].text = translation;
+                            })
+                    }
+                })
+            ).then(_ => next())
+                .catch(err => {
                     console.warn(err);
                     return next();
                 })
