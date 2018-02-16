@@ -50,6 +50,7 @@ export class Translator implements Middleware {
         let language = this.getUserLanguage(context);
         if (language) {
             let promises = [];
+            //translates all outgoing messages
             return Promise.all(
                 //creates an array of promises to translate the outgoing messages
                 activities.map((activity, i) => {
