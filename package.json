@@ -1,7 +1,7 @@
 {
-  "name": "echobot-ts",
-  "version": "1.0.0",
-  "description": "Bot Builder v4 example showing a simple bot that echos anything you say.",
+  "name": "botbuilder-translate",
+  "version": "0.0.0",
+  "description": "A piece of middleware to make bots multilingual",
   "main": "./lib/app.js",
   "scripts": {
     "build-sample": "tsc",
