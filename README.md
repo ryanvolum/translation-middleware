@@ -1,7 +1,10 @@
 # translation-middleware
 This is a TypeScript/Node that project demonstrates a piece of middleware that makes a bot multilingual. See [Brandon's .NET translator](https://github.com/brandonh-msft/botbuilder-dotnet/tree/translation-middleware/samples/Microsoft.Bot.Samples.TranslatorMiddleware) for the C# version.
 
-This project includes the middleware in ```translate-middleware.ts``` and a sample bot in ```app.ts```. This project uses TypeScript - see Setup section for compilation instructions.
+![Conversation](https://raw.githubusercontent.com/ryanvolum/translation-middleware/ryvolum/update-readme/img/sample-conversation.JPG)
+
+
+This project includes the middleware in ```translate-middleware.ts``` and a sample bot in samples ```/luis-sample/app.ts```. The sample uses TypeScript - see Setup section for compilation instructions.
 
 #### Terrible ascii pseudocode:
 
