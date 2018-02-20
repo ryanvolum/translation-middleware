@@ -11,9 +11,9 @@ export class Translator implements Middleware {
     private translationKey: string;
     private botLanguage: string;
     private getUserLanguage: (context: BotContext) => string;
-    private setUserLanguage: (context: BotContext) => Promise<boolean>;
+    private setUserLanguage: (context: BotContext, next: () => Promise<void>) => Promise<void>;
 
-    constructor(translationKey: string, botLanguage: string, getUserLanguage: (c: BotContext) => string, setUserLanguage: (context: BotContext) => Promise<boolean>) {
+    constructor(translationKey: string, botLanguage: string, getUserLanguage: (c: BotContext) => string, setUserLanguage: (context: BotContext, next: () => Promise<void>) => Promise<void>) {
         this.translationKey = translationKey;
         this.botLanguage = botLanguage;
         this.getUserLanguage = getUserLanguage;
@@ -33,14 +33,7 @@ export class Translator implements Middleware {
                     return next();
                 });
 
-            return this.setUserLanguage(context)
-                .then(changedLanguage => {
-                    //If user's language was not changed, continue to flow through middleware
-                    if (!changedLanguage) {
-                        return next();
-                    }
-                    //Else (no code necessary) the message is intercepted
-                })
+            return this.setUserLanguage(context, next);
         }
     }
 

@@ -1,4 +1,4 @@
-import { Bot, MemoryStorage, BotStateManager, ConsoleLogger, Intent } from 'botbuilder';
+import { Bot, MemoryStorage, BotStateManager, ConsoleLogger, Intent, Middleware, Activity, ConversationResourceResponse } from 'botbuilder';
 import { BotFrameworkAdapter } from 'botbuilder-services';
 import { Translator } from './translate-middleware';
 import { LuisRecognizer } from 'botbuilder-ai';
@@ -43,7 +43,7 @@ const setLanguage = (context: BotContext, language): void => {
     context.state.user.translateTo = getLanguageCode(language);
 }
 
-const setActiveLanguage = (context: BotContext): Promise<boolean> => {
+const setActiveLanguage = (context: BotContext, next: () => Promise<void>): Promise<void> => {
     return LuisRecognizer.recognize(context.request.text, process.env.MICROSOFT_LUIS_APP_ID, process.env.MICROSOFT_LUIS_APP_PASSWORD)
         .then(intent => {
             if (intent && intent.name === 'changeLanguage') {
@@ -62,11 +62,35 @@ const setActiveLanguage = (context: BotContext): Promise<boolean> => {
                     context.reply(`You have to tell me what language to translate to!`);
                 }
                 //intercepts message
-                return Promise.resolve(true);
             } else {
-                return Promise.resolve(false);
+                return next();
             }
         })
+}
+
+
+const filterMiddleware = (predicate: (context: BotContext) => boolean, middleware: Middleware): Middleware => {
+    return {
+        contextCreated: (context: BotContext, next: () => Promise<void>) => {
+            return (predicate(context) && middleware.contextCreated)
+                ? middleware.contextCreated(context, next)
+                : next()
+        },
+        receiveActivity: (context: BotContext, next: () => Promise<void>) => {
+            return (predicate(context) && middleware.receiveActivity)
+                ? middleware.receiveActivity(context, next)
+                : next()
+        },
+        postActivity: (context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>) => {
+            return (predicate(context) && middleware.postActivity)
+                ? middleware.postActivity(context, activities, next)
+                : next()
+        }
+    }
+}
+
+const predicate = (context: BotContext) => {
+    return (context.request.text && context.request.text.length > 40);
 }
 
 const bot = new Bot(adapter)

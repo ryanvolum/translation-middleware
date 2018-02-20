@@ -1,11 +1,15 @@
 {
   "name": "botbuilder-translate",
-  "version": "0.0.0",
+  "version": "0.0.4",
   "description": "A piece of middleware to make bots multilingual",
-  "main": "./lib/app.js",
+  "main": "./lib/translate-middleware.js",
   "scripts": {
     "build-sample": "tsc",
     "start": "tsc && node ./lib/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanvolum/translation-middleware"
   },
   "author": "",
   "license": "MIT",
