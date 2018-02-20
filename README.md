@@ -49,7 +49,10 @@ If the language is not changed and the intent "changeLanguage" is not triggered,
  
 # Setup
 
-### Install packages
+### Navigate to sample folder in the cmd line
+
+### Install dependencies
+
 ```
 npm install
 ```
@@ -57,9 +60,9 @@ npm install
 ### Add keys to your .env file
 Open the .env file in your root directory. Add your Microsoft Translator API key, your Luis App Id and your Luis App Password.
 
-If you're using the sample app.ts, you need to host a LUIS app with the "changeLanguage" intent and the "language::toLanguage" entity. Remember that you can define your setUserLanguage to change languages based on whatever trigger you like (An NLP model triggering a specific intent, a button being pressed, a regular expression firing, etc.). 
+If you're using the luis-sample, you need to host a LUIS app with the "changeLanguage" intent and the "language::toLanguage" entity. Remember that you can define your setUserLanguage to change languages based on whatever trigger you like (An NLP model triggering a specific intent, a button being pressed, a regular expression firing, etc.). 
 
-The implementation I here is just one way of doing things :)
+The implementation we use here is just one way of doing things :)
 
 ### Compile Typescript
 
