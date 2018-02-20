@@ -1,0 +1,4 @@
+samples/
+.envProd
+node_modules/
+.vscode/

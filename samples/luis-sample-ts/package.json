@@ -1,0 +1,16 @@
+{
+  "name": "luis-sample",
+  "version": "1.0.0",
+  "description": "Sample that demonstrates how to use the translation extension with LUIS",
+  "main": "lib/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "botbuilder": "^4.0.0-m1.4",
+    "botbuilder-services": "^4.0.0-m1.2",
+    "botbuilder-translate": "0.0.4"
+  }
+}

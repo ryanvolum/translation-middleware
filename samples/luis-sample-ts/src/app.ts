@@ -1,6 +1,6 @@
-import { Bot, MemoryStorage, BotStateManager, ConsoleLogger, Intent, Middleware, Activity, ConversationResourceResponse } from 'botbuilder';
+import { Bot, MemoryStorage, BotStateManager, Intent, Middleware, Activity, ConversationResourceResponse } from 'botbuilder';
 import { BotFrameworkAdapter } from 'botbuilder-services';
-import { Translator } from './translate-middleware';
+import { Translator } from 'botbuilder-translate';
 import { LuisRecognizer } from 'botbuilder-ai';
 import * as restify from "restify";
 import * as dotenv from 'dotenv';
@@ -69,7 +69,6 @@ const setUserLanguage = (context: BotContext, next: () => Promise<void>): Promis
 }
 
 const bot = new Bot(adapter)
-    .use(new ConsoleLogger())
     .use(new MemoryStorage())
     .use(new BotStateManager())
     .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setUserLanguage))
