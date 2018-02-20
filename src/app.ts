@@ -43,7 +43,7 @@ const setLanguage = (context: BotContext, language): void => {
     context.state.user.translateTo = getLanguageCode(language);
 }
 
-const setActiveLanguage = (context: BotContext, next: () => Promise<void>): Promise<void> => {
+const setUserLanguage = (context: BotContext, next: () => Promise<void>): Promise<void> => {
     return LuisRecognizer.recognize(context.request.text, process.env.MICROSOFT_LUIS_APP_ID, process.env.MICROSOFT_LUIS_APP_PASSWORD)
         .then(intent => {
             if (intent && intent.name === 'changeLanguage') {
@@ -72,7 +72,7 @@ const bot = new Bot(adapter)
     .use(new ConsoleLogger())
     .use(new MemoryStorage())
     .use(new BotStateManager())
-    .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setActiveLanguage))
+    .use(new Translator(process.env.MICROSOFT_TRANSLATOR_KEY, "en", getUserLanguage, setUserLanguage))
     .onReceive((context) => {
         if (context.request.type === 'message') {
             context.reply(`You just said:`)
