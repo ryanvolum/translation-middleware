@@ -68,31 +68,6 @@ const setActiveLanguage = (context: BotContext, next: () => Promise<void>): Prom
         })
 }
 
-
-const filterMiddleware = (predicate: (context: BotContext) => boolean, middleware: Middleware): Middleware => {
-    return {
-        contextCreated: (context: BotContext, next: () => Promise<void>) => {
-            return (predicate(context) && middleware.contextCreated)
-                ? middleware.contextCreated(context, next)
-                : next()
-        },
-        receiveActivity: (context: BotContext, next: () => Promise<void>) => {
-            return (predicate(context) && middleware.receiveActivity)
-                ? middleware.receiveActivity(context, next)
-                : next()
-        },
-        postActivity: (context: BotContext, activities: Partial<Activity>[], next: () => Promise<ConversationResourceResponse[]>) => {
-            return (predicate(context) && middleware.postActivity)
-                ? middleware.postActivity(context, activities, next)
-                : next()
-        }
-    }
-}
-
-const predicate = (context: BotContext) => {
-    return (context.request.text && context.request.text.length > 40);
-}
-
 const bot = new Bot(adapter)
     .use(new ConsoleLogger())
     .use(new MemoryStorage())
