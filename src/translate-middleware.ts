@@ -21,7 +21,7 @@ export class Translator implements Middleware {
     }
 
     public async receiveActivity(context: BotContext, next: () => Promise<void>): Promise<void> {
-        if (context.request.type === "message") {
+        if (context.request.type === "message" || context.request.type === 'conversationUpdate') {
             //Use the injected getUserLanguage function to find the user's current language. If none, assume they're speaking the bot's language
             let language = this.getUserLanguage(context) || this.botLanguage;
 
