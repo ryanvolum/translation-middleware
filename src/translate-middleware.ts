@@ -34,7 +34,9 @@ export class Translator implements Middleware {
                 });
 
             return this.setUserLanguage(context, next);
-        }
+        } else if (context.request.type === 'conversationUpdate') { 
+                return next();        
+        }  
     }
 
     //TODO: use batch translation api...
